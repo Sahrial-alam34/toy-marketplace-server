@@ -32,22 +32,35 @@ async function run() {
     const database = client.db("houseOfCar");
     const carCollection = database.collection("cars");
 
-    app.post("/addCar", async(req, res)=>{
-      const  body = req.body;
-      if(!body){
-        return res.status(404).send({message:"body data not found"})
+    app.post("/addCar", async (req, res) => {
+      const body = req.body;
+      if (!body) {
+        return res.status(404).send({ message: "body data not found" })
       }
       const result = await carCollection.insertOne(body);
-      console.log(result);
+      // console.log(result);
       res.send(result);
     })
 
-    app.get("/allCars", async(req, res)=>{
+    app.get("/allCars", async (req, res) => {
       const result = await carCollection.find({}).toArray();
-      console.log(result)
+      // console.log(result)
       res.send(result)
     })
-    
+    app.get("/allCars/:text", async (req, res) => {
+      console.log(req.params.text);
+      if (req.params.text == "car" || req.params.text == "bus" || req.params.text == "truck") {
+        const result = await carCollection
+        .find({ Subcategory: req.params.text})
+        .toArray();
+        return res.send(result)
+
+      }
+      const result = await carCollection.find({}).toArray();
+      //console.log(result)
+      res.send(result)
+    })
+
 
     // Send a ping to confirm a successful connection
     //await client.db("admin").command({ ping: 1 });
@@ -61,10 +74,10 @@ run().catch(console.dir);
 
 
 
-app.get('/',(req, res)=>{
-    res.send('House of Tory cars is busy');
+app.get('/', (req, res) => {
+  res.send('House of Tory cars is busy');
 })
 
-app.listen(port, ()=>{
-    console.log(`House of Troy cars is running on port: ${port}`);
+app.listen(port, () => {
+  console.log(`House of Troy cars is running on port: ${port}`);
 })
