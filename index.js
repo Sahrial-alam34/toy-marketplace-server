@@ -43,6 +43,11 @@ async function run() {
       res.send(result);
     })
 
+    // Creating index on  fields
+    const indexKeys = { toyName: 1 }; // Replace field1  with your actual field names
+    const indexOptions = { name: "toyName" }; // Replace index_name with the desired index name
+    const result = await carCollection.createIndex(indexKeys, indexOptions);
+
     app.get("/allCars", async (req, res) => {
       const result = await carCollection.find({}).sort({createdAt:-1}).toArray();
       // console.log(result)
@@ -68,6 +73,20 @@ async function run() {
       const result = await carCollection.find({postedBy: req.params.email}).toArray()
       res.send(result)
     })
+
+    app.get("/getCarsByName/:text", async (req, res) => {
+      const text = req.params.text;
+      const result = await carCollection
+        .find({
+          $or: [
+            { toyName: { $regex: text, $options: "i" } },
+            
+          ],
+        })
+        .toArray();
+      res.send(result);
+    });
+
 
 
     // Send a ping to confirm a successful connection
