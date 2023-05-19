@@ -10,6 +10,7 @@ app.use(express.json());
 
 
 
+
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kzrcuv8.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -40,6 +41,12 @@ async function run() {
       console.log(result);
       res.send(result);
     })
+
+    app.get("/allCars", async(req, res)=>{
+      const result = await carCollection.find({}).toArray();
+      console.log(result)
+      res.send(result)
+    })
     
 
     // Send a ping to confirm a successful connection
@@ -51,6 +58,7 @@ async function run() {
   }
 }
 run().catch(console.dir);
+
 
 
 app.get('/',(req, res)=>{
