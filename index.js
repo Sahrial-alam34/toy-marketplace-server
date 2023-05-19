@@ -34,6 +34,7 @@ async function run() {
 
     app.post("/addCar", async (req, res) => {
       const body = req.body;
+      body.createdAt = new Date();
       if (!body) {
         return res.status(404).send({ message: "body data not found" })
       }
@@ -43,7 +44,7 @@ async function run() {
     })
 
     app.get("/allCars", async (req, res) => {
-      const result = await carCollection.find({}).toArray();
+      const result = await carCollection.find({}).sort({createdAt:-1}).toArray();
       // console.log(result)
       res.send(result)
     })
@@ -52,11 +53,12 @@ async function run() {
       if (req.params.text == "car" || req.params.text == "bus" || req.params.text == "truck") {
         const result = await carCollection
         .find({ Subcategory: req.params.text})
+        .sort({createdAt:-1})
         .toArray();
         return res.send(result)
 
       }
-      const result = await carCollection.find({}).toArray();
+      const result = await carCollection.find({}).sort({createdAt:-1}).toArray();
       //console.log(result)
       res.send(result)
     })
