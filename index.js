@@ -4,14 +4,20 @@ require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
 
-//middleware
+// middleware
+// const corsConfig = {
+//   origin: '*',
+//   Credential:true,
+//   method:['GET', 'POST', 'PUT', 'DELETE']
+// }
+//  app.use(cors(corsConfig));
 app.use(cors());
 app.use(express.json());
 
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.kzrcuv8.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -20,14 +26,23 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
+  // useNewUrlParser: true,
+  // useUnifiedTopology: true,
+  // maxPoolSize:10,
+
 });
 
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     //await client.connect();
-    client.connect();
+    // client.connect((err)=>{
+    //   if(err){
+    //     console.error(err)
+    //     return;
+    //   }
+    // });
 
     const database = client.db("houseOfCar");
     const carCollection = database.collection("cars");
@@ -44,17 +59,18 @@ async function run() {
     })
 
     // Creating index on  fields
-    const indexKeys = { toyName: 1 }; // Replace field1  with your actual field names
-    const indexOptions = { name: "toyName" }; // Replace index_name with the desired index name
-    const result = await carCollection.createIndex(indexKeys, indexOptions);
+    // const indexKeys = { toyName: 1 }; // Replace field1  with your actual field names
+    // const indexOptions = { name: "toyName" }; // Replace index_name with the desired index name
+    // const result = await carCollection.createIndex(indexKeys, indexOptions);
 
     app.get("/allCars", async (req, res) => {
       const result = await carCollection.find({}).sort({createdAt:-1}).toArray();
       // console.log(result)
       res.send(result)
     })
+
     app.get("/allCars/:text", async (req, res) => {
-      console.log(req.params.text);
+      //console.log(req.params.text);
       if (req.params.text == "car" || req.params.text == "bus" || req.params.text == "truck") {
         const result = await carCollection
         .find({ Subcategory: req.params.text})
@@ -69,11 +85,46 @@ async function run() {
     })
 
     app.get("/myCars/:email", async(req, res)=>{
-      console.log(req.params.email);
+      //console.log(req.params.email);
       const result = await carCollection.find({postedBy: req.params.email}).toArray()
       res.send(result)
     })
 
+ 
+
+    app.delete("/myCars/:id", async(req, res)=>{
+      
+      const id = req.params.id
+     console.log('please delete',id);
+      const query = {_id: new ObjectId(id) }
+      const result = await carCollection.deleteOne(query);
+      console.log('result', result)
+      res.send(result);
+    })
+
+    app.get('/updatedCars/:id', async(req, res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await carCollection.findOne(query);
+      res.send(result)
+    })
+
+    app.put('/updatedACar/:id', async(req, res)=>{
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)}
+      const options = { upsert: true};
+      const updatedACar = req.body;
+      const car = {
+        $set: {
+          price:updatedACar.price,
+          quantity:updatedACar.quantity,
+          description:updatedACar.description
+        }
+      }
+      const result = await carCollection.updateOne(filter, car, options)
+      res.send(result)
+    })
+ 
     app.get("/getCarsByName/:text", async (req, res) => {
       const text = req.params.text;
       const result = await carCollection
