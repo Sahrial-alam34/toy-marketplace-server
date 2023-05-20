@@ -68,7 +68,7 @@ async function run() {
       // console.log(result)
       res.send(result)
     })
-
+//get car by text
     app.get("/allCars/:text", async (req, res) => {
       //console.log(req.params.text);
       if (req.params.text == "car" || req.params.text == "bus" || req.params.text == "truck") {
@@ -83,7 +83,7 @@ async function run() {
       //console.log(result)
       res.send(result)
     })
-
+//get element by email
     app.get("/myCars/:email", async(req, res)=>{
       //console.log(req.params.email);
       const result = await carCollection.find({postedBy: req.params.email}).toArray()
@@ -91,7 +91,7 @@ async function run() {
     })
 
  
-
+// delete single car
     app.delete("/myCars/:id", async(req, res)=>{
       
       const id = req.params.id
@@ -101,7 +101,7 @@ async function run() {
       console.log('result', result)
       res.send(result);
     })
-
+// get data for update car
     app.get('/updatedCars/:id', async(req, res)=>{
       const id = req.params.id;
       const query = {_id: new ObjectId(id)}
@@ -109,6 +109,7 @@ async function run() {
       res.send(result)
     })
 
+    // for update car
     app.put('/updatedACar/:id', async(req, res)=>{
       const id = req.params.id;
       const filter = {_id: new ObjectId(id)}
@@ -137,6 +138,13 @@ async function run() {
         .toArray();
       res.send(result);
     });
+//get single car details
+    app.get('/carDetails/:id', async(req, res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await carCollection.findOne(query);
+      res.send(result)
+    })
 
 
 
