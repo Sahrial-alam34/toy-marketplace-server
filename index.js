@@ -47,6 +47,11 @@ async function run() {
     const database = client.db("houseOfCar");
     const carCollection = database.collection("cars");
 
+    //sorting
+
+
+
+
     app.post("/addCar", async (req, res) => {
       const body = req.body;
       body.createdAt = new Date();
@@ -58,90 +63,110 @@ async function run() {
       res.send(result);
     })
 
+
+
     // Creating index on  fields
     // const indexKeys = { toyName: 1 }; // Replace field1  with your actual field names
     // const indexOptions = { name: "toyName" }; // Replace index_name with the desired index name
     // const result = await carCollection.createIndex(indexKeys, indexOptions);
 
     app.get("/allCars", async (req, res) => {
-      const result = await carCollection.find({}).sort({createdAt:-1}).toArray();
+      const result = await carCollection.find({}).sort({ createdAt: -1 }).toArray();
       // console.log(result)
       res.send(result)
     })
-//get car by text
+    //get car by text
     app.get("/allCars/:text", async (req, res) => {
       //console.log(req.params.text);
       if (req.params.text == "car" || req.params.text == "bus" || req.params.text == "truck") {
         const result = await carCollection
-        .find({ Subcategory: req.params.text})
-        .sort({createdAt:-1})
-        .toArray();
+          .find({ Subcategory: req.params.text })
+          .sort({ createdAt: -1 })
+          .toArray();
         return res.send(result)
 
       }
-      const result = await carCollection.find({}).sort({createdAt:-1}).toArray();
+      const result = await carCollection.find({}).sort({ createdAt: -1 }).toArray();
       //console.log(result)
       res.send(result)
     })
-//get element by email
-    app.get("/myCars/:email", async(req, res)=>{
+    //get element by email
+    app.get("/myCars/:email", async (req, res) => {
       //console.log(req.params.email);
-      const result = await carCollection.find({postedBy: req.params.email}).toArray()
+      const result = await carCollection.find({ postedBy: req.params.email }).toArray()
       res.send(result)
     })
 
- 
-// delete single car
-    app.delete("/myCars/:id", async(req, res)=>{
-      
+    app.get('/sorted/:text' ,async (req, res) => {
+      console.log(req.params.text);
+      let sorting = {}
+      if (req.params.text == "ascending") {
+        sorting = { price: 1 }
+      }
+      else if (req.params.text == "descending") {
+        sorting = { price: -1 }
+      }
+      else {
+        res.send({ error: "error" })
+      }
+
+      const result = await carCollection.find().sort(sorting).collation({ locale: "en_US", numericOrdering: true }).toArray();
+      console.log(result);
+      return res.send(result)
+    })
+
+
+    // delete single car
+    app.delete("/myCars/:id", async (req, res) => {
+
       const id = req.params.id
-     console.log('please delete',id);
-      const query = {_id: new ObjectId(id) }
+      console.log('please delete', id);
+      const query = { _id: new ObjectId(id) }
       const result = await carCollection.deleteOne(query);
       console.log('result', result)
       res.send(result);
     })
-// get data for update car
-    app.get('/updatedCars/:id', async(req, res)=>{
+    // get data for update car
+    app.get('/updatedCars/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
+      const query = { _id: new ObjectId(id) }
       const result = await carCollection.findOne(query);
       res.send(result)
     })
 
     // for update car
-    app.put('/updatedACar/:id', async(req, res)=>{
+    app.put('/updatedACar/:id', async (req, res) => {
       const id = req.params.id;
-      const filter = {_id: new ObjectId(id)}
-      const options = { upsert: true};
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true };
       const updatedACar = req.body;
       const car = {
         $set: {
-          price:updatedACar.price,
-          quantity:updatedACar.quantity,
-          description:updatedACar.description
+          price: updatedACar.price,
+          quantity: updatedACar.quantity,
+          description: updatedACar.description
         }
       }
       const result = await carCollection.updateOne(filter, car, options)
       res.send(result)
     })
- 
+
     app.get("/getCarsByName/:text", async (req, res) => {
       const text = req.params.text;
       const result = await carCollection
         .find({
           $or: [
             { toyName: { $regex: text, $options: "i" } },
-            
+
           ],
         })
         .toArray();
       res.send(result);
     });
-//get single car details
-    app.get('/carDetails/:id', async(req, res)=>{
+    //get single car details
+    app.get('/carDetails/:id', async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)}
+      const query = { _id: new ObjectId(id) }
       const result = await carCollection.findOne(query);
       res.send(result)
     })
