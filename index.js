@@ -75,11 +75,11 @@ async function run() {
       // console.log(result)
       res.send(result)
     })
-    app.get("/allTotalCars", async (req, res) => {
-      const result = await carCollection.find({}).sort({ createdAt: -1 }).toArray();
-      // console.log(result)
-      res.send(result)
-    })
+    // app.get("/allTotalCars", async (req, res) => {
+    //   const result = await carCollection.find({}).sort({ createdAt: -1 }).toArray();
+    //   // console.log(result)
+    //   res.send(result)
+    // })
     //get car by text
     app.get("/allCars/:text", async (req, res) => {
       //console.log(req.params.text);
