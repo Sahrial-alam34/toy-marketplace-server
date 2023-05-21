@@ -71,6 +71,11 @@ async function run() {
     // const result = await carCollection.createIndex(indexKeys, indexOptions);
 
     app.get("/allCars", async (req, res) => {
+      const result = await carCollection.find({}).sort({ createdAt: -1 }).limit(20).toArray();
+      // console.log(result)
+      res.send(result)
+    })
+    app.get("/allTotalCars", async (req, res) => {
       const result = await carCollection.find({}).sort({ createdAt: -1 }).toArray();
       // console.log(result)
       res.send(result)
