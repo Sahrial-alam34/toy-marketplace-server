@@ -91,10 +91,11 @@ async function run() {
       res.send(result)
     })
     //get element by email
-    app.get("/myCars/:email", async (req, res) => {
+    app.get("/myallCars/:email", async (req, res) => {
       //console.log(req.params.email);
       const result = await carCollection.find({ postedBy: req.params.email }).toArray()
       res.send(result)
+      
     })
 
     app.get('/sorted/:text' ,async (req, res) => {
@@ -114,6 +115,7 @@ async function run() {
       console.log(result);
       return res.send(result)
     })
+  
 
 
     // delete single car
