@@ -71,7 +71,14 @@ async function run() {
     // const result = await carCollection.createIndex(indexKeys, indexOptions);
 
     app.get("/allCars", async (req, res) => {
-      const result = await carCollection.find({}).sort({ createdAt: -1 }).limit(20).toArray();
+      const limit = parseInt(req.query.limit) || 9;
+      const page = parseInt(req.query.page) || 1;
+      const skip = (page - 1) * limit;
+     // console.log(limit)
+      const cursor = carCollection.find({}).sort({ createdAt: -1 }).limit(limit).skip(skip)
+
+      const result = await cursor.toArray();
+      //const result = await carCollection.find({}).sort({ createdAt: -1 }).limit(20).toArray();
       // console.log(result)
       res.send(result)
     })
